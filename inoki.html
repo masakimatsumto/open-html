@@ -1,323 +1,323 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>アントニオ猪木：この道を行けば タイピングゲーム</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>アントニオ猪木：この道を行けば タイピングゲーム</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #fce200;
-            margin: 0;
-            color: #333;
-        }
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #fce200;
+      margin: 0;
+      color: #333;
+    }
 
-        .game-container {
-            background-color: #fff;
-            border: 5px solid #e20000;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 850px;
-        }
+    .game-container {
+      background-color: #fff;
+      border: 5px solid #e20000;
+      border-radius: 15px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 850px;
+    }
 
-        h1 {
-            color: #e20000;
-            margin-bottom: 20px;
-            font-size: 2.2em;
-        }
+    h1 {
+      color: #e20000;
+      margin-bottom: 20px;
+      font-size: 2.2em;
+    }
 
-        #gameCanvas {
-            background-color: #a0d8f0;
-            border: 2px solid #ccc;
-            margin-bottom: 20px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            width: 100%;
-            height: auto;
-            max-width: 800px;
-        }
+    #gameCanvas {
+      background-color: #a0d8f0;
+      border: 2px solid #ccc;
+      margin-bottom: 20px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      width: 100%;
+      height: auto;
+      max-width: 800px;
+    }
 
-        #typing-input {
-            width: calc(100% - 20px);
-            padding: 15px;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-        }
+    #typing-input {
+      width: calc(100% - 20px);
+      padding: 15px;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+    }
 
-        .info-area {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 25px;
-            font-size: 1.2em;
-            font-weight: bold;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+    .info-area {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 25px;
+      font-size: 1.2em;
+      font-weight: bold;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
 
-        .info-area p span {
-            color: #e20000;
-        }
+    .info-area p span {
+      color: #e20000;
+    }
 
-        #start-button {
-            background-color: #e20000;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.8em;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+    #start-button {
+      background-color: #e20000;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.8em;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
 
-        #start-button:hover {
-            background-color: #c00000;
-        }
+    #start-button:hover {
+      background-color: #c00000;
+    }
 
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 1.6em;
-            }
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.6em;
+      }
 
-            #typing-input {
-                font-size: 1.2em;
-                padding: 12px;
-            }
+      #typing-input {
+        font-size: 1.2em;
+        padding: 12px;
+      }
 
-            .info-area {
-                flex-direction: column;
-                align-items: center;
-                font-size: 1em;
-            }
+      .info-area {
+        flex-direction: column;
+        align-items: center;
+        font-size: 1em;
+      }
 
-            #start-button {
-                font-size: 1.5em;
-                padding: 12px 24px;
-            }
-        }
-    </style>
+      #start-button {
+        font-size: 1.5em;
+        padding: 12px 24px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>アントニオ猪木：この道を行けば</h1>
-        <canvas id="gameCanvas" width="800" height="450"></canvas>
-        <input type="text" id="typing-input" placeholder="ここにタイピング！" autofocus autocomplete="off">
-        <div class="info-area">
-            <p>スコア: <span id="score">0</span></p>
-            <p>コンボ: <span id="combo">0</span></p>
-        </div>
-        <button id="start-button">ゲームスタート！</button>
+  <div class="game-container">
+    <h1>アントニオ猪木：この道を行けば</h1>
+    <canvas id="gameCanvas" width="800" height="450"></canvas>
+    <input type="text" id="typing-input" placeholder="ここにタイピング！" autofocus autocomplete="off" inputmode="kana" />
+    <div class="info-area">
+      <p>スコア: <span id="score">0</span></p>
+      <p>コンボ: <span id="combo">0</span></p>
     </div>
+    <button id="start-button">ゲームスタート！</button>
+  </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            const typingInput = document.getElementById('typing-input');
-            const scoreDisplay = document.getElementById('score');
-            const comboDisplay = document.getElementById('combo');
-            const startButton = document.getElementById('start-button');
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      const typingInput = document.getElementById('typing-input');
+      const scoreDisplay = document.getElementById('score');
+      const comboDisplay = document.getElementById('combo');
+      const startButton = document.getElementById('start-button');
 
-            const canvasWidth = canvas.width;
-            const canvasHeight = canvas.height;
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
 
-            const poemLines = [
-                { name: 'この道を行けば', roman: 'kono michi wo yukeba' },
-                { name: 'どうなるものか', roman: 'dou naru mono ka' },
-                { name: '危ぶむなかれ', roman: 'ayabumu nakare' },
-                { name: '危ぶめば道はなし', roman: 'ayabumeba michi wa nashi' },
-                { name: '踏み出せばその一足が道となり', roman: 'fumidaseba sono hitoashi ga michi to nari' },
-                { name: 'その一足が道となる', roman: 'sono hitoashi ga michi to naru' },
-                { name: '迷わず行けよ', roman: 'mayowazu ike yo' },
-                { name: '行けばわかるさ', roman: 'ikeba wakaru sa' }
-            ];
+      const poemLines = [
+        { name: 'この道を行けば', hira: 'このみちをゆけば' },
+        { name: 'どうなるものか', hira: 'どうなるものか' },
+        { name: '危ぶむなかれ', hira: 'あやぶむなかれ' },
+        { name: '危ぶめば道はなし', hira: 'あやぶめばみちはなし' },
+        { name: '踏み出せばその一足が道となり', hira: 'ふみだせばそのひとあしがみちとなり' },
+        { name: 'その一足が道となる', hira: 'そのひとあしがみちとなる' },
+        { name: '迷わず行けよ', hira: 'まよわずいけよ' },
+        { name: '行けばわかるさ', hira: 'いけばわかるさ' }
+      ];
 
-            let currentLineIndex = 0;
-            let score = 0;
-            let time = 60;
-            let combo = 0;
-            let timerIntervalId;
-            let animationFrameId;
-            let gameStarted = false;
-            let typedText = '';
+      let currentLineIndex = 0;
+      let score = 0;
+      let time = 60;
+      let combo = 0;
+      let timerIntervalId;
+      let animationFrameId;
+      let gameStarted = false;
+      let typedText = '';
 
-            function drawGame() {
-                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-                ctx.fillStyle = '#C0E6F7';
-                ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-                ctx.fillStyle = '#6D4C41';
-                ctx.fillRect(0, canvasHeight - 100, canvasWidth, 100);
+      function drawGame() {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        ctx.fillStyle = '#C0E6F7';
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        ctx.fillStyle = '#6D4C41';
+        ctx.fillRect(0, canvasHeight - 100, canvasWidth, 100);
 
-                if (poemLines[currentLineIndex]) {
-                    const currentLine = poemLines[currentLineIndex];
-                    ctx.fillStyle = '#333333';
-                    ctx.font = 'bold 36px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(currentLine.name, canvasWidth / 2, canvasHeight / 2 - 50);
+        if (poemLines[currentLineIndex]) {
+          const currentLine = poemLines[currentLineIndex];
+          ctx.fillStyle = '#333333';
+          ctx.font = 'bold 36px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(currentLine.name, canvasWidth / 2, canvasHeight / 2 - 50);
 
-                    ctx.fillStyle = '#555555';
-                    ctx.font = 'bold 28px Arial';
-                    const typedY = canvasHeight / 2 + 20;
-                    const targetRomanWidth = ctx.measureText(currentLine.roman).width;
-                    const typedX = canvasWidth / 2;
-                    ctx.textAlign = 'center';
-                    ctx.fillText(currentLine.roman, typedX, typedY);
+          ctx.fillStyle = '#555555';
+          ctx.font = 'bold 28px Arial';
+          const typedY = canvasHeight / 2 + 20;
+          const targetWidth = ctx.measureText(currentLine.hira).width;
+          const typedX = canvasWidth / 2;
+          ctx.textAlign = 'center';
+          ctx.fillText(currentLine.hira, typedX, typedY);
 
-                    ctx.fillStyle = '#E20000';
-                    ctx.textAlign = 'left';
-                    ctx.fillText(typedText, typedX - (targetRomanWidth / 2), typedY);
-                } else if (!gameStarted) {
-                    ctx.fillStyle = '#333333';
-                    ctx.font = 'bold 40px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('タイピングゲーム：', canvasWidth / 2, canvasHeight / 2 - 60);
-                    ctx.fillStyle = '#E20000';
-                    ctx.font = 'bold 50px Arial';
-                    ctx.fillText('この道を行けば', canvasWidth / 2, canvasHeight / 2);
-                    ctx.fillStyle = '#333333';
-                    ctx.font = '24px Arial';
-                    ctx.fillText('ボタンを押して開始', canvasWidth / 2, canvasHeight / 2 + 60);
-                }
+          ctx.fillStyle = '#E20000';
+          ctx.textAlign = 'left';
+          ctx.fillText(typedText, typedX - targetWidth / 2, typedY);
+        } else if (!gameStarted) {
+          ctx.fillStyle = '#333333';
+          ctx.font = 'bold 40px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('タイピングゲーム：', canvasWidth / 2, canvasHeight / 2 - 60);
+          ctx.fillStyle = '#E20000';
+          ctx.font = 'bold 50px Arial';
+          ctx.fillText('この道を行けば', canvasWidth / 2, canvasHeight / 2);
+          ctx.fillStyle = '#333333';
+          ctx.font = '24px Arial';
+          ctx.fillText('ボタンを押して開始', canvasWidth / 2, canvasHeight / 2 + 60);
+        }
 
-                ctx.fillStyle = '#CCCCCC';
-                ctx.fillRect(50, canvasHeight - 40, canvasWidth - 100, 20);
-                const timeBarWidth = (time / 60) * (canvasWidth - 100);
-                ctx.fillStyle = time > 15 ? '#4CAF50' : (time > 5 ? '#FFC107' : '#E20000');
-                ctx.fillRect(50, canvasHeight - 40, timeBarWidth, 20);
+        ctx.fillStyle = '#CCCCCC';
+        ctx.fillRect(50, canvasHeight - 40, canvasWidth - 100, 20);
+        const timeBarWidth = (time / 60) * (canvasWidth - 100);
+        ctx.fillStyle = time > 15 ? '#4CAF50' : time > 5 ? '#FFC107' : '#E20000';
+        ctx.fillRect(50, canvasHeight - 40, timeBarWidth, 20);
 
-                ctx.fillStyle = '#FFFFFF';
-                ctx.font = 'bold 16px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(`残り時間: ${time}秒`, canvasWidth / 2, canvasHeight - 25);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(`残り時間: ${time}秒`, canvasWidth / 2, canvasHeight - 25);
 
-                if (!gameStarted && (time <= 0 || currentLineIndex >= poemLines.length)) {
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-                    ctx.fillStyle = '#E20000';
-                    ctx.font = 'bold 60px Arial';
-                    ctx.fillText('ゲーム終了！', canvasWidth / 2, canvasHeight / 2 - 40);
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.font = 'bold 40px Arial';
-                    ctx.fillText(`最終スコア: ${score}`, canvasWidth / 2, canvasHeight / 2 + 20);
-                    if (currentLineIndex >= poemLines.length) {
-                        ctx.font = 'bold 30px Arial';
-                        ctx.fillText('詩を最後までタイピングしました！', canvasWidth / 2, canvasHeight / 2 + 70);
-                    }
-                }
-            }
+        if (!gameStarted && (time <= 0 || currentLineIndex >= poemLines.length)) {
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+          ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+          ctx.fillStyle = '#E20000';
+          ctx.font = 'bold 60px Arial';
+          ctx.fillText('ゲーム終了！', canvasWidth / 2, canvasHeight / 2 - 40);
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = 'bold 40px Arial';
+          ctx.fillText(`最終スコア: ${score}`, canvasWidth / 2, canvasHeight / 2 + 20);
+          if (currentLineIndex >= poemLines.length) {
+            ctx.font = 'bold 30px Arial';
+            ctx.fillText('詩を最後までタイピングしました！', canvasWidth / 2, canvasHeight / 2 + 70);
+          }
+        }
+      }
 
-            function gameLoop() {
-                drawGame();
-                if (gameStarted || (!gameStarted && (time <= 0 || currentLineIndex >= poemLines.length))) {
-                    animationFrameId = requestAnimationFrame(gameLoop);
-                }
-            }
+      function gameLoop() {
+        drawGame();
+        if (gameStarted || (!gameStarted && (time <= 0 || currentLineIndex >= poemLines.length))) {
+          animationFrameId = requestAnimationFrame(gameLoop);
+        }
+      }
 
-            function initializeGame() {
-                score = 0;
-                time = 60;
-                combo = 0;
-                currentLineIndex = 0;
-                typedText = '';
-                scoreDisplay.textContent = score;
-                comboDisplay.textContent = combo;
-                typingInput.value = '';
-                typingInput.disabled = true;
-                startButton.style.display = 'block';
-                gameStarted = false;
-                clearInterval(timerIntervalId);
-                cancelAnimationFrame(animationFrameId);
-                drawGame();
-            }
+      function initializeGame() {
+        score = 0;
+        time = 60;
+        combo = 0;
+        currentLineIndex = 0;
+        typedText = '';
+        scoreDisplay.textContent = score;
+        comboDisplay.textContent = combo;
+        typingInput.value = '';
+        typingInput.disabled = true;
+        startButton.style.display = 'block';
+        gameStarted = false;
+        clearInterval(timerIntervalId);
+        cancelAnimationFrame(animationFrameId);
+        drawGame();
+      }
 
-            function generateNewLine() {
-                if (currentLineIndex < poemLines.length) {
-                    typedText = '';
-                    typingInput.value = '';
-                    typingInput.focus();
-                } else {
-                    endGame();
-                }
-            }
+      function generateNewLine() {
+        if (currentLineIndex < poemLines.length) {
+          typedText = '';
+          typingInput.value = '';
+          typingInput.focus();
+        } else {
+          endGame();
+        }
+      }
 
-            function startTimer() {
-                timerIntervalId = setInterval(() => {
-                    time--;
-                    if (time <= 0) {
-                        clearInterval(timerIntervalId);
-                        endGame();
-                    }
-                }, 1000);
-            }
+      function startTimer() {
+        timerIntervalId = setInterval(() => {
+          time--;
+          if (time <= 0) {
+            clearInterval(timerIntervalId);
+            endGame();
+          }
+        }, 1000);
+      }
 
-            function startGame() {
-                if (gameStarted) return;
-                gameStarted = true;
-                startButton.style.display = 'none';
-                typingInput.disabled = false;
-                typingInput.focus();
+      function startGame() {
+        if (gameStarted) return;
+        gameStarted = true;
+        startButton.style.display = 'none';
+        typingInput.disabled = false;
+        typingInput.focus();
 
-                score = 0;
-                combo = 0;
-                currentLineIndex = 0;
-                scoreDisplay.textContent = score;
-                comboDisplay.textContent = combo;
-                time = 60;
+        score = 0;
+        combo = 0;
+        currentLineIndex = 0;
+        scoreDisplay.textContent = score;
+        comboDisplay.textContent = combo;
+        time = 60;
 
-                generateNewLine();
-                startTimer();
-                animationFrameId = requestAnimationFrame(gameLoop);
-            }
+        generateNewLine();
+        startTimer();
+        animationFrameId = requestAnimationFrame(gameLoop);
+      }
 
-            function endGame() {
-                gameStarted = false;
-                clearInterval(timerIntervalId);
-                cancelAnimationFrame(animationFrameId);
-                typingInput.disabled = true;
-                drawGame();
-                startButton.style.display = 'block';
-            }
+      function endGame() {
+        gameStarted = false;
+        clearInterval(timerIntervalId);
+        cancelAnimationFrame(animationFrameId);
+        typingInput.disabled = true;
+        drawGame();
+        startButton.style.display = 'block';
+      }
 
-            typingInput.addEventListener('input', () => {
-                if (!gameStarted) return;
+      typingInput.addEventListener('input', () => {
+        if (!gameStarted) return;
 
-                typedText = typingInput.value;
-                const targetRoman = poemLines[currentLineIndex].roman;
+        typedText = typingInput.value.trim();
+        const target = poemLines[currentLineIndex].hira;
 
-                if (typedText === targetRoman) {
-                    score += 50 + combo * 10;
-                    combo++;
-                    scoreDisplay.textContent = score;
-                    comboDisplay.textContent = combo;
-                    currentLineIndex++;
-                    generateNewLine();
-                } else if (!targetRoman.startsWith(typedText)) {
-                    combo = 0;
-                    comboDisplay.textContent = combo;
-                    typingInput.value = '';
-                    typedText = '';
-                }
-            });
+        if (typedText === target) {
+          score += 50 + combo * 10;
+          combo++;
+          scoreDisplay.textContent = score;
+          comboDisplay.textContent = combo;
+          currentLineIndex++;
+          generateNewLine();
+        } else if (!target.startsWith(typedText)) {
+          combo = 0;
+          comboDisplay.textContent = combo;
+          typingInput.value = '';
+          typedText = '';
+        }
+      });
 
-            startButton.addEventListener('click', startGame);
+      startButton.addEventListener('click', startGame);
 
-            initializeGame();
-        });
-    </script>
+      initializeGame();
+    });
+  </script>
 </body>
 </html>
