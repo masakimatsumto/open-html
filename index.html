@@ -14,12 +14,10 @@
       font-family: sans-serif;
       touch-action: none;
     }
-
     #gameCanvas {
       display: block;
       background: black;
     }
-
     #controls {
       position: fixed;
       bottom: 0;
@@ -31,7 +29,6 @@
       padding: 10px 0;
       z-index: 10;
     }
-
     .control-btn {
       flex: 1;
       max-width: 120px;
@@ -46,11 +43,9 @@
       border: 1px solid white;
       user-select: none;
     }
-
     .control-btn:active {
       background: #888;
     }
-
     #gameOverPopup {
       position: fixed;
       top: 50%;
@@ -65,7 +60,6 @@
       z-index: 20;
       border-radius: 10px;
     }
-
     #restartBtn {
       margin-top: 10px;
       font-size: 18px;
@@ -78,224 +72,223 @@
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas"></canvas>
+<canvas id="gameCanvas"></canvas>
 
-  <div id="controls">
-    <div class="control-btn" id="leftBtn">◀</div>
-    <div class="control-btn" id="shootBtn">●</div>
-    <div class="control-btn" id="rightBtn">▶</div>
-  </div>
+<div id="controls">
+  <div class="control-btn" id="leftBtn">◀</div>
+  <div class="control-btn" id="shootBtn">●</div>
+  <div class="control-btn" id="rightBtn">▶</div>
+</div>
 
-  <div id="gameOverPopup">
-    <h2>GAME OVER</h2>
-    <p id="finalScore"></p>
-    <button id="restartBtn">リスタート</button>
-  </div>
+<div id="gameOverPopup">
+  <h2>GAME OVER</h2>
+  <p id="finalScore"></p>
+  <button id="restartBtn">リスタート</button>
+</div>
 
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const controls = document.getElementById("controls");
-    const popup = document.getElementById("gameOverPopup");
-    const finalScore = document.getElementById("finalScore");
-    const restartBtn = document.getElementById("restartBtn");
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const controls = document.getElementById("controls");
+const popup = document.getElementById("gameOverPopup");
+const finalScore = document.getElementById("finalScore");
+const restartBtn = document.getElementById("restartBtn");
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight - controls.offsetHeight;
-    }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight - controls.offsetHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
-    const player = { x: canvas.width / 2 - 20, y: canvas.height - 30, width: 40, height: 10, speed: 5 };
-    const bullet = { x: 0, y: 0, width: 4, height: 10, speed: 7, active: false };
-    const invaders = [];
-    const invaderBullets = [];
-    const bossBullets = [];
+const player = { x: canvas.width / 2 - 20, y: canvas.height - 30, width: 40, height: 10, speed: 5 };
+const bullet = { x: 0, y: 0, width: 4, height: 10, speed: 7, active: false };
+const invaders = [];
+const invaderBullets = [];
+const bossBullets = [];
 
-    let score = 0;
-    let isGameOver = false;
-    let boss = { x: canvas.width / 2 - 50, y: 50, width: 100, height: 30, hp: 3, alive: false, dir: 2 };
+let score = 0;
+let isGameOver = false;
+let boss = { x: canvas.width / 2 - 50, y: 50, width: 100, height: 30, hp: 3, alive: false, dir: 1.5 };
 
-    const rows = 3, cols = 6, invWidth = 30, invHeight = 20, padding = 10, offsetX = 40, offsetY = 30;
-    let invDir = 4;
+const rows = 3, cols = 6, invWidth = 30, invHeight = 20, padding = 10, offsetX = 40, offsetY = 30;
+let invDir = 2;
 
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        invaders.push({ x: offsetX + c * (invWidth + padding), y: offsetY + r * (invHeight + padding), alive: true });
+for (let r = 0; r < rows; r++) {
+  for (let c = 0; c < cols; c++) {
+    invaders.push({ x: offsetX + c * (invWidth + padding), y: offsetY + r * (invHeight + padding), alive: true });
+  }
+}
+
+let leftPressed = false, rightPressed = false, leftInterval, rightInterval;
+
+document.getElementById("leftBtn").addEventListener("touchstart", () => {
+  leftPressed = true;
+  leftInterval = setInterval(() => { player.x = Math.max(0, player.x - player.speed); }, 16);
+});
+document.getElementById("leftBtn").addEventListener("touchend", () => {
+  clearInterval(leftInterval); leftPressed = false;
+});
+
+document.getElementById("rightBtn").addEventListener("touchstart", () => {
+  rightPressed = true;
+  rightInterval = setInterval(() => { player.x = Math.min(canvas.width - player.width, player.x + player.speed); }, 16);
+});
+document.getElementById("rightBtn").addEventListener("touchend", () => {
+  clearInterval(rightInterval); rightPressed = false;
+});
+
+document.getElementById("shootBtn").addEventListener("touchstart", () => {
+  if (!bullet.active) {
+    bullet.x = player.x + player.width / 2 - bullet.width / 2;
+    bullet.y = player.y;
+    bullet.active = true;
+  }
+});
+
+restartBtn.addEventListener("click", () => location.reload());
+
+function updateBullet() {
+  if (bullet.active) {
+    bullet.y -= bullet.speed;
+    if (bullet.y < 0) bullet.active = false;
+
+    for (const inv of invaders) {
+      if (inv.alive && bullet.x < inv.x + invWidth && bullet.x + bullet.width > inv.x &&
+          bullet.y < inv.y + invHeight && bullet.y + bullet.height > inv.y) {
+        inv.alive = false;
+        bullet.active = false;
+        score += 100;
       }
     }
 
-    let leftPressed = false, rightPressed = false, leftInterval, rightInterval;
-
-    document.getElementById("leftBtn").addEventListener("touchstart", () => {
-      leftPressed = true;
-      leftInterval = setInterval(() => { player.x = Math.max(0, player.x - player.speed); }, 16);
-    });
-    document.getElementById("leftBtn").addEventListener("touchend", () => {
-      clearInterval(leftInterval); leftPressed = false;
-    });
-
-    document.getElementById("rightBtn").addEventListener("touchstart", () => {
-      rightPressed = true;
-      rightInterval = setInterval(() => { player.x = Math.min(canvas.width - player.width, player.x + player.speed); }, 16);
-    });
-    document.getElementById("rightBtn").addEventListener("touchend", () => {
-      clearInterval(rightInterval); rightPressed = false;
-    });
-
-    document.getElementById("shootBtn").addEventListener("touchstart", () => {
-      if (!bullet.active) {
-        bullet.x = player.x + player.width / 2 - bullet.width / 2;
-        bullet.y = player.y;
-        bullet.active = true;
-      }
-    });
-
-    restartBtn.addEventListener("click", () => location.reload());
-
-    function updateBullet() {
-      if (bullet.active) {
-        bullet.y -= bullet.speed;
-        if (bullet.y < 0) bullet.active = false;
-
-        for (const inv of invaders) {
-          if (inv.alive && bullet.x < inv.x + invWidth && bullet.x + bullet.width > inv.x &&
-              bullet.y < inv.y + invHeight && bullet.y + bullet.height > inv.y) {
-            inv.alive = false;
-            bullet.active = false;
-            score += 100;
-          }
-        }
-
-        if (boss.alive && bullet.x < boss.x + boss.width && bullet.x + bullet.width > boss.x &&
-            bullet.y < boss.y + boss.height && bullet.y + bullet.height > boss.y) {
-          boss.hp--;
-          bullet.active = false;
-          if (boss.hp <= 0) {
-            boss.alive = false;
-            score += 1000;
-          }
-        }
+    if (boss.alive && bullet.x < boss.x + boss.width && bullet.x + bullet.width > boss.x &&
+        bullet.y < boss.y + boss.height && bullet.y + bullet.height > boss.y) {
+      boss.hp--;
+      bullet.active = false;
+      if (boss.hp <= 0) {
+        boss.alive = false;
+        score += 1000;
       }
     }
+  }
+}
 
-    function updateInvaders() {
-      let shift = false;
-      for (const inv of invaders) {
-        if (inv.alive) {
-          inv.x += invDir;
-          if (inv.x + invWidth > canvas.width || inv.x < 0) shift = true;
-        }
-      }
-      if (shift) {
-        invDir *= -1;
-        for (const inv of invaders) {
-          inv.y += 20;
-          if (inv.y + invHeight >= player.y) gameOver();
-        }
-      }
+function updateInvaders() {
+  let shift = false;
+  for (const inv of invaders) {
+    if (inv.alive) {
+      inv.x += invDir;
+      if (inv.x + invWidth > canvas.width || inv.x < 0) shift = true;
     }
-
-    function fireInvaderBullet() {
-      const alive = invaders.filter(i => i.alive);
-      if (!alive.length) return;
-      const shooter = alive[Math.floor(Math.random() * alive.length)];
-      invaderBullets.push({ x: shooter.x + invWidth / 2 - 2, y: shooter.y + invHeight, width: 4, height: 10, speed: 4 });
+  }
+  if (shift) {
+    invDir *= -1;
+    for (const inv of invaders) {
+      inv.y += 20;
+      if (inv.y + invHeight >= player.y) gameOver();
     }
+  }
+}
 
-    setInterval(() => {
-      if (!isGameOver) fireInvaderBullet();
-    }, 1000);
+function fireInvaderBullet() {
+  const alive = invaders.filter(i => i.alive);
+  if (!alive.length) return;
+  const shooter = alive[Math.floor(Math.random() * alive.length)];
+  invaderBullets.push({ x: shooter.x + invWidth / 2 - 2, y: shooter.y + invHeight, width: 4, height: 10, speed: 4 });
+}
 
-    function fireBossBullet() {
-      if (!boss.alive || isGameOver) return;
-      bossBullets.push({ x: boss.x + boss.width / 2 - 2, y: boss.y + boss.height, width: 4, height: 10, speed: 5 });
+setInterval(() => {
+  if (!isGameOver) fireInvaderBullet();
+}, 1000);
+
+function fireBossBullet() {
+  if (!boss.alive || isGameOver) return;
+  bossBullets.push({ x: boss.x + boss.width / 2 - 2, y: boss.y + boss.height, width: 4, height: 10, speed: 5 });
+}
+
+setInterval(fireBossBullet, 1500);
+
+function updateBullets(arr, color) {
+  for (let i = arr.length - 1; i >= 0; i--) {
+    const b = arr[i];
+    b.y += b.speed;
+    ctx.fillStyle = color;
+    ctx.fillRect(b.x, b.y, b.width, b.height);
+    if (
+      b.y + b.height > player.y &&
+      b.x < player.x + player.width &&
+      b.x + b.width > player.x
+    ) {
+      gameOver();
     }
-
-    setInterval(fireBossBullet, 1500);
-
-    function updateInvaderBullets() {
-      for (const b of invaderBullets) {
-        b.y += b.speed;
-        ctx.fillStyle = 'orange';
-        ctx.fillRect(b.x, b.y, b.width, b.height);
-        if (b.y + b.height > player.y && b.x < player.x + player.width && b.x + b.width > player.x) gameOver();
-      }
-      invaderBullets.splice(0, invaderBullets.filter(b => b.y <= canvas.height).length);
+    if (b.y > canvas.height) {
+      arr.splice(i, 1);
     }
+  }
+}
 
-    function updateBossBullets() {
-      for (const b of bossBullets) {
-        b.y += b.speed;
-        ctx.fillStyle = 'red';
-        ctx.fillRect(b.x, b.y, b.width, b.height);
-        if (b.y + b.height > player.y && b.x < player.x + player.width && b.x + b.width > player.x) gameOver();
-      }
-      bossBullets.splice(0, bossBullets.filter(b => b.y <= canvas.height).length);
-    }
+function updateBoss() {
+  if (!boss.alive && score >= 1000) boss.alive = true;
+  if (boss.alive) {
+    boss.x += boss.dir;
+    if (boss.x < 0 || boss.x + boss.width > canvas.width) boss.dir *= -1;
+    ctx.fillStyle = 'purple';
+    ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+  }
+}
 
-    function updateBoss() {
-      if (!boss.alive && score >= 1000) boss.alive = true;
-      if (boss.alive) {
-        boss.x += boss.dir;
-        if (boss.x < 0 || boss.x + boss.width > canvas.width) boss.dir *= -1;
-        ctx.fillStyle = 'purple';
-        ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
-      }
-    }
+function drawPlayer() {
+  ctx.fillStyle = 'lime';
+  ctx.fillRect(player.x, player.y, player.width, player.height);
+}
 
-    function drawPlayer() {
-      ctx.fillStyle = 'lime';
-      ctx.fillRect(player.x, player.y, player.width, player.height);
-    }
+function drawBullet() {
+  if (bullet.active) {
+    ctx.fillStyle = 'red';
+    ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+  }
+}
 
-    function drawBullet() {
-      if (bullet.active) {
-        ctx.fillStyle = 'red';
-        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
-      }
-    }
+function drawInvaders() {
+  ctx.fillStyle = 'white';
+  for (const inv of invaders) {
+    if (inv.alive) ctx.fillRect(inv.x, inv.y, invWidth, invHeight);
+  }
+}
 
-    function drawInvaders() {
-      ctx.fillStyle = 'white';
-      for (const inv of invaders) {
-        if (inv.alive) ctx.fillRect(inv.x, inv.y, invWidth, invHeight);
-      }
-    }
+function drawScore() {
+  ctx.fillStyle = 'white';
+  ctx.font = '16px sans-serif';
+  ctx.fillText(`SCORE: ${score}`, 10, 20);
+}
 
-    function drawScore() {
-      ctx.fillStyle = 'white';
-      ctx.font = '16px sans-serif';
-      ctx.fillText(`SCORE: ${score}`, 10, 20);
-    }
+function gameOver() {
+  isGameOver = true;
+  finalScore.textContent = `スコア: ${score}`;
+  popup.style.display = 'block';
+}
 
-    function gameOver() {
-      isGameOver = true;
-      finalScore.textContent = `スコア: ${score}`;
-      popup.style.display = 'block';
-    }
+function gameLoop() {
+  if (isGameOver) return;
 
-    function gameLoop() {
-      if (isGameOver) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  updateBullet();
+  updateInvaders();
+  updateBoss();
+  updateBullets(invaderBullets, 'orange');
+  updateBullets(bossBullets, 'red');
 
-      updateBullet();
-      updateInvaders();
-      updateBoss();
-      updateInvaderBullets();
-      updateBossBullets();
+  drawPlayer();
+  drawBullet();
+  drawInvaders();
+  drawScore();
 
-      drawPlayer();
-      drawBullet();
-      drawInvaders();
-      drawScore();
+  requestAnimationFrame(gameLoop);
+}
 
-      requestAnimationFrame(gameLoop);
-    }
-
-    gameLoop();
-  </script>
+gameLoop();
+</script>
 </body>
 </html>
