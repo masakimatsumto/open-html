@@ -5,41 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>アントニオ猪木：この道を行けば タイピングゲーム</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Arial', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: #fce200; /* マクドナルドの黄色をイメージ */
+            background-color: #fce200;
             margin: 0;
             color: #333;
         }
 
         .game-container {
             background-color: #fff;
-            border: 5px solid #e20000; /* マクドナルドの赤をイメージ */
+            border: 5px solid #e20000;
             border-radius: 15px;
             padding: 30px;
             text-align: center;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
             width: 90%;
-            max-width: 850px; /* Canvasの幅に合わせて調整 */
+            max-width: 850px;
         }
 
         h1 {
             color: #e20000;
             margin-bottom: 20px;
-            font-size: 2.2em; /* タイトルが長くなる可能性があるので調整 */
+            font-size: 2.2em;
         }
 
         #gameCanvas {
-            background-color: #a0d8f0; /* 空のイメージ */
+            background-color: #a0d8f0;
             border: 2px solid #ccc;
             margin-bottom: 20px;
-            display: block; /* 中央寄せのためにブロック要素に */
+            display: block;
             margin-left: auto;
             margin-right: auto;
+            width: 100%;
+            height: auto;
+            max-width: 800px;
         }
 
         #typing-input {
@@ -49,7 +56,6 @@
             font-size: 1.5em;
             border: 2px solid #ccc;
             border-radius: 8px;
-            box-sizing: border-box;
         }
 
         .info-area {
@@ -58,6 +64,8 @@
             margin-bottom: 25px;
             font-size: 1.2em;
             font-weight: bold;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .info-area p span {
@@ -79,15 +87,34 @@
         #start-button:hover {
             background-color: #c00000;
         }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.6em;
+            }
+
+            #typing-input {
+                font-size: 1.2em;
+                padding: 12px;
+            }
+
+            .info-area {
+                flex-direction: column;
+                align-items: center;
+                font-size: 1em;
+            }
+
+            #start-button {
+                font-size: 1.5em;
+                padding: 12px 24px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="game-container">
         <h1>アントニオ猪木：この道を行けば</h1>
-        <!-- ゲーム描画用Canvas -->
         <canvas id="gameCanvas" width="800" height="450"></canvas>
-
-        <!-- タイピング入力欄と情報表示エリアはCanvasの外に配置 -->
         <input type="text" id="typing-input" placeholder="ここにタイピング！" autofocus autocomplete="off">
         <div class="info-area">
             <p>スコア: <span id="score">0</span></p>
@@ -99,7 +126,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d'); // 2D描画コンテキストを取得
+            const ctx = canvas.getContext('2d');
             const typingInput = document.getElementById('typing-input');
             const scoreDisplay = document.getElementById('score');
             const comboDisplay = document.getElementById('combo');
@@ -108,7 +135,6 @@
             const canvasWidth = canvas.width;
             const canvasHeight = canvas.height;
 
-            // アントニオ猪木の「この道を行けば」の詩の各行とローマ字表記
             const poemLines = [
                 { name: 'この道を行けば', roman: 'kono michi wo yukeba' },
                 { name: 'どうなるものか', roman: 'dou naru mono ka' },
@@ -120,62 +146,47 @@
                 { name: '行けばわかるさ', roman: 'ikeba wakaru sa' }
             ];
 
-            let currentLineIndex = 0; // 現在表示されている詩の行のインデックス
+            let currentLineIndex = 0;
             let score = 0;
-            let time = 60; // ゲーム時間 (秒)
+            let time = 60;
             let combo = 0;
-            let timerIntervalId; // setIntervalのIDを保持
-            let animationFrameId; // requestAnimationFrameのIDを保持
+            let timerIntervalId;
+            let animationFrameId;
             let gameStarted = false;
-            let typedText = ''; // ユーザーが現在入力中のテキスト
+            let typedText = '';
 
-            // --- 描画関数 ---
-            // ゲームの状態をCanvasに描画します
             function drawGame() {
-                // キャンバスをクリア
                 ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-                // 背景（シンプルな背景）
-                ctx.fillStyle = '#C0E6F7'; // 明るい青空
+                ctx.fillStyle = '#C0E6F7';
                 ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-                ctx.fillStyle = '#6D4C41'; // 地面の色
+                ctx.fillStyle = '#6D4C41';
                 ctx.fillRect(0, canvasHeight - 100, canvasWidth, 100);
 
-                // 詩の行表示
                 if (poemLines[currentLineIndex]) {
                     const currentLine = poemLines[currentLineIndex];
-
                     ctx.fillStyle = '#333333';
-                    ctx.font = 'bold 36px Arial'; // 詩の行を表示するフォントサイズ
+                    ctx.font = 'bold 36px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText(currentLine.name, canvasWidth / 2, canvasHeight / 2 - 50); // 画面中央より少し上に表示
+                    ctx.fillText(currentLine.name, canvasWidth / 2, canvasHeight / 2 - 50);
 
-                    // 入力中のローマ字表示（Canvas上）
-                    // タイプすべき文字 (全体)
                     ctx.fillStyle = '#555555';
                     ctx.font = 'bold 28px Arial';
-                    ctx.textAlign = 'center'; // ローマ字も中央寄せ
-                    const typedY = canvasHeight / 2 + 20; // 日本語の下に表示
-                    let targetRomanWidth = ctx.measureText(currentLine.roman).width;
-                    let typedX = canvasWidth / 2; // 中央揃え
-
+                    const typedY = canvasHeight / 2 + 20;
+                    const targetRomanWidth = ctx.measureText(currentLine.roman).width;
+                    const typedX = canvasWidth / 2;
+                    ctx.textAlign = 'center';
                     ctx.fillText(currentLine.roman, typedX, typedY);
 
-                    // タイプされた文字（色を変えて表示）
-                    ctx.fillStyle = '#E20000'; // マクドナルドの赤をイメージ
-                    ctx.fillText(typedText, typedX - (targetRomanWidth / 2) + ctx.measureText(typedText).width / 2, typedY);
-                    // typedTextの左寄せ部分をtargetRomanの左寄せ部分に合わせるように調整
+                    ctx.fillStyle = '#E20000';
                     ctx.textAlign = 'left';
                     ctx.fillText(typedText, typedX - (targetRomanWidth / 2), typedY);
                 } else if (!gameStarted) {
-                    // ゲーム開始前のメッセージ
                     ctx.fillStyle = '#333333';
                     ctx.font = 'bold 40px Arial';
                     ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
                     ctx.fillText('タイピングゲーム：', canvasWidth / 2, canvasHeight / 2 - 60);
-                    ctx.fillStyle = '#E20000'; // タイトルを赤く
+                    ctx.fillStyle = '#E20000';
                     ctx.font = 'bold 50px Arial';
                     ctx.fillText('この道を行けば', canvasWidth / 2, canvasHeight / 2);
                     ctx.fillStyle = '#333333';
@@ -183,12 +194,10 @@
                     ctx.fillText('ボタンを押して開始', canvasWidth / 2, canvasHeight / 2 + 60);
                 }
 
-
-                // 残り時間ゲージ
-                ctx.fillStyle = '#CCCCCC'; // 背景
+                ctx.fillStyle = '#CCCCCC';
                 ctx.fillRect(50, canvasHeight - 40, canvasWidth - 100, 20);
                 const timeBarWidth = (time / 60) * (canvasWidth - 100);
-                ctx.fillStyle = time > 15 ? '#4CAF50' : (time > 5 ? '#FFC107' : '#E20000'); // 緑、黄、赤
+                ctx.fillStyle = time > 15 ? '#4CAF50' : (time > 5 ? '#FFC107' : '#E20000');
                 ctx.fillRect(50, canvasHeight - 40, timeBarWidth, 20);
 
                 ctx.fillStyle = '#FFFFFF';
@@ -196,16 +205,13 @@
                 ctx.textAlign = 'center';
                 ctx.fillText(`残り時間: ${time}秒`, canvasWidth / 2, canvasHeight - 25);
 
-
-                // ゲームオーバーメッセージ（詩の最後まで到達した場合も含む）
                 if (!gameStarted && (time <= 0 || currentLineIndex >= poemLines.length)) {
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'; // 半透明の黒でオーバーレイ
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
                     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-                    ctx.fillStyle = '#E20000'; // 赤色
+                    ctx.fillStyle = '#E20000';
                     ctx.font = 'bold 60px Arial';
-                    ctx.textAlign = 'center';
                     ctx.fillText('ゲーム終了！', canvasWidth / 2, canvasHeight / 2 - 40);
-                    ctx.fillStyle = '#FFFFFF'; // 白色
+                    ctx.fillStyle = '#FFFFFF';
                     ctx.font = 'bold 40px Arial';
                     ctx.fillText(`最終スコア: ${score}`, canvasWidth / 2, canvasHeight / 2 + 20);
                     if (currentLineIndex >= poemLines.length) {
@@ -215,35 +221,18 @@
                 }
             }
 
-            // 角丸長方形の描画ヘルパー関数 (今回は使わないが、以前のコードから残す)
-            function drawRoundedRect(ctx, x, y, width, height, radius) {
-                ctx.beginPath();
-                ctx.moveTo(x + radius, y);
-                ctx.lineTo(x + width - radius, y);
-                ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-                ctx.lineTo(x + width, y + height - radius);
-                ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-                ctx.lineTo(x + radius, y + height);
-                ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-                ctx.lineTo(x, y + radius);
-                ctx.quadraticCurveTo(x, y, x + radius, y);
-                ctx.closePath();
-            }
-
-            // --- ゲームループ ---
             function gameLoop() {
                 drawGame();
-                if (gameStarted || (time <= 0 && !gameStarted) || (currentLineIndex >= poemLines.length && !gameStarted)) {
+                if (gameStarted || (!gameStarted && (time <= 0 || currentLineIndex >= poemLines.length))) {
                     animationFrameId = requestAnimationFrame(gameLoop);
                 }
             }
 
-            // --- ゲームロジック関数 ---
             function initializeGame() {
                 score = 0;
                 time = 60;
                 combo = 0;
-                currentLineIndex = 0; // 最初の行からスタート
+                currentLineIndex = 0;
                 typedText = '';
                 scoreDisplay.textContent = score;
                 comboDisplay.textContent = combo;
@@ -253,21 +242,19 @@
                 gameStarted = false;
                 clearInterval(timerIntervalId);
                 cancelAnimationFrame(animationFrameId);
-                drawGame(); // 初期画面を描画
+                drawGame();
             }
 
-            // 新しい行を表示
             function generateNewLine() {
                 if (currentLineIndex < poemLines.length) {
                     typedText = '';
                     typingInput.value = '';
                     typingInput.focus();
                 } else {
-                    endGame(); // 詩の最後まで到達
+                    endGame();
                 }
             }
 
-            // タイマーの開始
             function startTimer() {
                 timerIntervalId = setInterval(() => {
                     time--;
@@ -278,7 +265,6 @@
                 }, 1000);
             }
 
-            // ゲーム開始
             function startGame() {
                 if (gameStarted) return;
                 gameStarted = true;
@@ -288,27 +274,25 @@
 
                 score = 0;
                 combo = 0;
-                currentLineIndex = 0; // ゲーム開始時に最初の行にリセット
+                currentLineIndex = 0;
                 scoreDisplay.textContent = score;
                 comboDisplay.textContent = combo;
                 time = 60;
 
-                generateNewLine(); // 最初の行を生成
+                generateNewLine();
                 startTimer();
                 animationFrameId = requestAnimationFrame(gameLoop);
             }
 
-            // ゲーム終了
             function endGame() {
                 gameStarted = false;
                 clearInterval(timerIntervalId);
                 cancelAnimationFrame(animationFrameId);
                 typingInput.disabled = true;
-                drawGame(); // 最終スコアなどを表示するためにCanvasを再描画
-                startButton.style.display = 'block'; // 再スタートボタンを表示
+                drawGame();
+                startButton.style.display = 'block';
             }
 
-            // タイピング入力イベント
             typingInput.addEventListener('input', () => {
                 if (!gameStarted) return;
 
@@ -316,25 +300,22 @@
                 const targetRoman = poemLines[currentLineIndex].roman;
 
                 if (typedText === targetRoman) {
-                    score += 50 + combo * 10; // 詩の行は長いのでスコアを高く設定
+                    score += 50 + combo * 10;
                     combo++;
                     scoreDisplay.textContent = score;
                     comboDisplay.textContent = combo;
-                    currentLineIndex++; // 次の行へ
-                    generateNewLine(); // 次の行を表示（またはゲーム終了）
+                    currentLineIndex++;
+                    generateNewLine();
                 } else if (!targetRoman.startsWith(typedText)) {
-                    // ミスタイプ
                     combo = 0;
                     comboDisplay.textContent = combo;
-                    typingInput.value = ''; // 入力欄をクリアしてやり直しを促す
-                    typedText = ''; // 内部状態もクリア
+                    typingInput.value = '';
+                    typedText = '';
                 }
             });
 
-            // スタートボタンクリックイベント
             startButton.addEventListener('click', startGame);
 
-            // ページロード時にゲームを初期化し、初期画面を描画
             initializeGame();
         });
     </script>
